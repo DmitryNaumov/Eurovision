@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Eurovision Voting Contest</title>
+    <link rel="stylesheet" type="text/css" href="~/Content/Site.css" />
+</head>
+<body>
+    <div>
+        <table id="table" border="2" align="center" width="400">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Votes</th>
+                </tr>
+            </thead>
+            <tbody data-bind="template: {name: 'rowTemplate', foreach: votes}">
+            </tbody>
+        </table>
+    </div>
+
+	<script id="rowTemplate" type="text/html">
+		<tr>
+			<td data-bind="text: Name" align="left"></td>
+			<td data-bind="text: Votes" align="right"></td>
+		</tr>
+	</script>
+    
+    <script type="text/javascript" src="~/Scripts/jquery-1.7.1.js"></script>
+	<script type="text/javascript" src="~/Scripts/knockout-2.1.0.js"></script>
+    <script type="text/javascript" src="~/Scripts/Site.js"></script>
+</body>
+</html>
