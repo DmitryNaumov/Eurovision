@@ -1,11 +1,19 @@
 ﻿namespace WebApplication.Controllers
 {
+	using System;
+	using System.Configuration;
+	using System.Data.SqlClient;
+	using System.Threading;
 	using System.Threading.Tasks;
+	using System.Web;
 	using System.Web.Http;
 	using Models;
 
 	public class VotesController : ApiController
 	{
+		private static readonly VotingResult Empty = new VotingResult();
+		private static readonly string ConnectionString = ConfigurationManager.ConnectionStrings["database"].ConnectionString;
+
 		private static readonly VotingResult[] _votes =
 			{
 				new VotingResult {Id = 1, Name = "Great Britain", Votes = 0},
@@ -18,17 +26,35 @@
 				new VotingResult {Id = 1, Name = "Japan", Votes = 0},
 			};
 
-        // GET api/votes
-        public async Task<VotingResult[]> Get()
-        {
-	        await Task.Delay(2000);
+		// GET api/votes
+		public VotingResult[] Get()
+		{
+			return _votes;
+		}
 
-	        foreach (var votingResult in _votes)
-	        {
-		        votingResult.Votes += 1;
-	        }
+		// GET api/votes/5
+		public async Task<VotingResult> Get(int id)
+		{
+			// HACK:
+			id = 1 + new Random().Next(8);
 
-	        return _votes;
-        }
-    }
+			using (var connection = new SqlConnection(ConnectionString))
+			using (var command = connection.CreateCommand())
+			{
+				command.CommandText = "INSERT INTO Votes (Id) VALUES (@Id)";
+				command.Parameters.AddWithValue("@Id", id);
+
+				await connection.OpenAsync();
+				await command.ExecuteNonQueryAsync();
+
+				var votingResult = _votes[id - 1];
+				lock (votingResult)
+				{
+					votingResult.Votes++;
+				}
+
+				return Empty;
+			}
+		}
+	}
 }
