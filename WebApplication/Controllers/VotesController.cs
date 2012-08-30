@@ -45,15 +45,31 @@
 				command.Parameters.AddWithValue("@Id", id);
 
 				await connection.OpenAsync();
-				await command.ExecuteNonQueryAsync();
 
-				var votingResult = _votes[id - 1];
-				lock (votingResult)
+				using (var transaction = connection.BeginTransaction())
 				{
-					votingResult.Votes++;
+					command.Transaction = transaction;
+
+					await command.ExecuteNonQueryAsync();
+					
+					// simulate db activity & roundtrip
+					await Task.Delay(10);
+
+					transaction.Commit();
 				}
 
+				AddVote(id - 1);
+
 				return Empty;
+			}
+		}
+
+		private void AddVote(int id)
+		{
+			var votingResult = _votes[id];
+			lock (votingResult)
+			{
+				votingResult.Votes++;
 			}
 		}
 	}
