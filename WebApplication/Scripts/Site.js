@@ -20,7 +20,7 @@ function refresh() {
 
             setTimeout(
                 'refresh()',
-                '1000');
+                '2000');
         },
         error: function () {
             setTimeout(
